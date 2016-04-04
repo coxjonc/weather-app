@@ -55,7 +55,7 @@
 
 	    getInitialState: function () {
 	        return {
-	            citySelectValue: '',
+	            citySelectValue: "x",
 	            cityOptions: [],
 	            zmw: ""
 	        };
@@ -79,11 +79,10 @@
 	        });
 	    },
 
-	    getWeather: function (input) {
+	    getWeather: function () {
 	        $.ajax({
 	            method: 'GET',
-	            url: "http://api.wunderground.com/api/d19eda6817f8fef7/forecast/q",
-	            data: { zmw: this.state.zmw + ".json" },
+	            url: "http://api.wunderground.com/api/f8e80b5bdc3e3694/forecast/q/zmw:" + this.state.zmw + ".json",
 	            dataType: "jsonp",
 	            jsonp: "callback",
 	            crossDomain: true,
@@ -95,8 +94,8 @@
 	    },
 
 	    updateSelected: function (val) {
-	        this.setState({ citySelectValue: val.label, zmw: val.zmw });
-	        debugger;
+	        this.setState({ citySelectValue: val, zmw: val.value });
+	        setTimeout(this.getWeather, 500);
 	    },
 
 	    render: function () {
