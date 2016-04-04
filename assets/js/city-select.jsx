@@ -21,7 +21,7 @@ module.exports = React.createClass({
             crossDomain: true,
             success: function(data){
                 var data = data.RESULTS.map(function(city){
-                    return { value: city.name, label: city.name }
+                    return { value: city.zmw, label: city.name }
                 })
                 this.setState({cities: data})
                 callback(null, {options: this.state.cities})
