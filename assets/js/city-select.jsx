@@ -6,42 +6,40 @@ require("react-select/dist/react-select.min.css")
 module.exports = React.createClass({
     getInitialState: function() {
         return {
-            citySelectValue: '',
+            citySelectValue: 'blabla',
             cities: []
         }
     },
 
-    getCities: function(input, callback) {
-        setTimeout(
-            function() {
-            $.ajax({
-                method: "GET",
-                url: "http://autocomplete.wunderground.com/aq",
-                data: {query: input},
-                dataType: "jsonp",
-                jsonp: 'cb',
-                crossDomain: true,
-                success: function(data){
-                    var data = data.RESULTS.map(function(city){
-                        return city.name
-                    })
-                    this.setState({cities: data})
-                    console.log(this.state.cities)
-                }.bind(this)
-            })
-            callback(null, {
-                options: this.state.cities
-            })
-            }.bind(this),
-            1000
-        )
+    updateCities: function(input, callback) {
+        $.ajax({
+            method: "GET",
+            url: "http://autocomplete.wunderground.com/aq",
+            data: {query: input},
+            dataType: "jsonp",
+            jsonp: "cb",
+            crossDomain: true,
+            success: function(data){
+                var data = data.RESULTS.map(function(city){
+                    return { value: city.name, label: city.name }
+                })
+                this.setState({cities: data})
+                callback(null, {options: this.state.cities})
+            }.bind(this)
+        })
+    },
+
+    updateSelect: function(val) {
+        this.setState({citySelectValue: val})
     },
 
     render: function() {
         return (
             <Select.Async
                 value={this.state.citySelectValue}
-                loadOptions={this.getCities}    
+                onChange={this.updateSelect}
+                loadOptions={this.updateCities}    
+                minimumInput={2}
             />
         )
     }
