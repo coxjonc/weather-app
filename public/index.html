@@ -4,9 +4,26 @@
   <title>
     Weather
   </title>
+  <style type="text/css">
+      .axis path, 
+      .axis line {
+          fill: none;
+          stroke: black;
+          shape-rendering: crispEdges;
+      }
+      .axis text {
+          font-family: sans-serif;
+          font-size: 11px;
+      }
+      .label {
+          font-family: sans-serif;
+          font-size: 11px;
+      }
+  </style>
 </head>
 <body>
   <div id="app"></div>
+  <svg id="chart"/>
   <script type="text/javascript" src="/main.js"></script>
 </body>
 </html>

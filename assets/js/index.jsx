@@ -1,6 +1,7 @@
 var React = require("react")
 var ReactDOM = require("react-dom")
 var Select = require("react-select")
+var chart = require("./chart.js")
 
 require("react-select/dist/react-select.min.css")
 
@@ -9,7 +10,9 @@ var App = React.createClass({
         return {
             citySelectValue: "x",
             cityOptions: [],
-            zmw: ""
+            zmw: "",
+            weatherData: [],
+            type: "metric"
         }
     },
 
@@ -34,14 +37,14 @@ var App = React.createClass({
     getWeather: function() {
         $.ajax({
             method: 'GET',
-            url: "http://api.wunderground.com/api/f8e80b5bdc3e3694/forecast/q/zmw:" + this.state.zmw + ".json",
+            url: "http://api.wunderground.com/api/f8e80b5bdc3e3694/hourly/q/zmw:" + this.state.zmw + ".json",
             dataType: "jsonp", 
             jsonp: "callback",
             crossDomain: true,
             success: function(data){
-                console.log(data)
-                alert("well done padawan")
-            }
+                this.setState({weatherData: data})
+                chart.generateChart(this.state.weatherData, this.state.type)
+            }.bind(this)
         })
     },
 
@@ -52,12 +55,16 @@ var App = React.createClass({
 
     render: function() {
         return (
+            <div>
+            <h1>WEATHER</h1>
+            <h2>Enter any city in the world</h2>
             <Select.Async
                 value={this.state.citySelectValue}
                 onChange={this.updateSelected}
                 loadOptions={this.updateCities}    
                 minimumInput={2}
             />
+            </div> 
         )
     }
 })
