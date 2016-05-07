@@ -31151,7 +31151,7 @@
 	            height = 400 - margin.right - margin.left;
 
 	        // Select and size the svg element
-	        var svg = d3.select('svg').attr('class', 'svg-container').append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+	        var svg = d3.select('div#weatherChart').attr('class', 'svg-container').append('svg').attr('preserveAspectRatio', 'xMinYMin meet').attr('viewBox', '0 0 600 400');
 
 	        // Get an array of max and min temperatures for each day in
 	        // the 4-day forecast
