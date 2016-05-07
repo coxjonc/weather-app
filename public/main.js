@@ -31148,10 +31148,10 @@
 	        // Set margins
 	        var margin = { top: 20, right: 20, bottom: 20, left: 40 },
 	            width = 600 - margin.right - margin.left,
-	            height = 400 - margin.right - margin.left;
+	            height = 400 - margin.top - margin.bottom;
 
 	        // Select and size the svg element
-	        var svg = d3.select('div#weatherChart').attr('class', 'svg-container').append('svg').attr('preserveAspectRatio', 'xMinYMin meet').attr('viewBox', '0 0 600 400');
+	        var svg = d3.select('div#weatherChart').attr('class', 'svg-container').append('svg').attr('viewBox', '0 0 ' + width + ' ' + height + margin.top + margin.bottom).attr('class', 'svg-content-responsive').append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 	        // Get an array of max and min temperatures for each day in
 	        // the 4-day forecast
