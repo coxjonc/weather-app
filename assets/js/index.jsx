@@ -12,7 +12,7 @@ var App = React.createClass({
             cityOptions: [],
             zmw: '',
             weatherData: [],
-            type: 'metric'
+            celsius: true
         }
     },
 
@@ -44,7 +44,7 @@ var App = React.createClass({
             crossDomain: true,
             success: function(data){
                 this.setState({weatherData: data})
-                chart.generateChart(this.state.weatherData, this.state.type)
+                chart.generateChart(this.state.weatherData, this.state.celsius)
             }.bind(this)
         })
     },
@@ -52,7 +52,13 @@ var App = React.createClass({
     updateSelected: function(val) {
         this.setState({citySelectValue: (val) ? val : '', 
             zmw: (val) ? val.value : ''})
-        setTimeout(this.getWeather, 500)
+        setTimeout(this.getWeather, 500);
+    },
+    handleTypeChange: function() {
+        this.setState({
+            celsius: !this.state.celsius
+        })
+        chart.generateChart(this.state.weatherData, !this.state.celsius)
     },
 
     render: function() {
@@ -67,6 +73,16 @@ var App = React.createClass({
                 loadOptions={this.updateCities}    
                 minimumInput={2}
             />
+            </div>
+            <div class='typeSelect'>
+            <label>Celsius</label>
+            <input type='radio'
+                onChange={this.handleTypeChange}
+                checked={this.state.celsius}/>
+            <label>Fahrenheit</label>
+            <input type='radio'
+                onChange={this.handleTypeChange}
+                checked={!this.state.celsius}/>
             </div>
             </div> 
         )

@@ -1,7 +1,7 @@
 var d3 = require('d3')
 
 module.exports = {
-    generateChart: function(data, type) {
+    generateChart: function(data, celsius) {
         $('#weatherChart').empty();
 
         // Set margins
@@ -32,12 +32,15 @@ module.exports = {
                 + time.hour)
             return {
                 time: prettyTime,
-                temp: (type == 'english') ? entry.temp.english : entry.temp.metric
+                temp: (celsius) ? entry.temp.metric : entry.temp.english
             }
         }); 
         temps = tempData.slice(0,72)
-        recordHigh = data.almanac.temp_high.record.C
-        recordLow = data.almanac.temp_low.record.C
+
+        recordHigh = (celsius) ? data.almanac.temp_high.record.C :
+            data.almanac.temp_high.record.F
+        recordLow = (celsius) ? data.almanac.temp_low.record.C :
+            data.almanac.temp_low.record.F
 
         var xScale = d3.time.scale()
             .domain([temps[0].time, temps.slice(-1)[0].time])
@@ -45,8 +48,10 @@ module.exports = {
 
         var yScale = d3.scale.linear()
             .domain([
-              d3.min(temps, function(d){return parseInt(d.temp) - 15}),
-              d3.max(temps, function(d){return parseInt(d.temp) + 15})
+              d3.min(temps, function(d){return parseInt(d.temp) - 
+                  ((celsius) ? 15 : 30)}),
+              d3.max(temps, function(d){return parseInt(d.temp) + 
+                  ((celsius) ? 15 : 30)})
             ])
             .range([height, 0])
         
@@ -91,7 +96,7 @@ module.exports = {
             .attr('text-anchor', 'end')
             .attr('transform', 'rotate(-90)')
             .attr('y', -30)
-            .text('Temperature (Celsius)');
+            .text('Temperature (' + ((celsius) ? 'Celsius' : 'Fahrenheit') + ')');
 
         // Append box showing temperature ranges
         svg.append('rect')

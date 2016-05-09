@@ -60,7 +60,7 @@
 	            cityOptions: [],
 	            zmw: '',
 	            weatherData: [],
-	            type: 'metric'
+	            celsius: true
 	        };
 	    },
 
@@ -91,7 +91,7 @@
 	            crossDomain: true,
 	            success: function (data) {
 	                this.setState({ weatherData: data });
-	                chart.generateChart(this.state.weatherData, this.state.type);
+	                chart.generateChart(this.state.weatherData, this.state.celsius);
 	            }.bind(this)
 	        });
 	    },
@@ -100,6 +100,12 @@
 	        this.setState({ citySelectValue: val ? val : '',
 	            zmw: val ? val.value : '' });
 	        setTimeout(this.getWeather, 500);
+	    },
+	    handleTypeChange: function () {
+	        this.setState({
+	            celsius: !this.state.celsius
+	        });
+	        chart.generateChart(this.state.weatherData, !this.state.celsius);
 	    },
 
 	    render: function () {
@@ -125,6 +131,26 @@
 	                    loadOptions: this.updateCities,
 	                    minimumInput: 2
 	                })
+	            ),
+	            React.createElement(
+	                'div',
+	                { 'class': 'typeSelect' },
+	                React.createElement(
+	                    'label',
+	                    null,
+	                    'Celsius'
+	                ),
+	                React.createElement('input', { type: 'radio',
+	                    onChange: this.handleTypeChange,
+	                    checked: this.state.celsius }),
+	                React.createElement(
+	                    'label',
+	                    null,
+	                    'Fahrenheit'
+	                ),
+	                React.createElement('input', { type: 'radio',
+	                    onChange: this.handleTypeChange,
+	                    checked: !this.state.celsius })
 	            )
 	        );
 	    }
@@ -31147,7 +31173,7 @@
 	/* WEBPACK VAR INJECTION */(function($) {var d3 = __webpack_require__(168);
 
 	module.exports = {
-	    generateChart: function (data, type) {
+	    generateChart: function (data, celsius) {
 	        $('#weatherChart').empty();
 
 	        // Set margins
@@ -31167,19 +31193,20 @@
 	            var prettyTime = format.parse(time.year + '-' + time.mon_padded + '-' + time.mday + '-' + time.hour);
 	            return {
 	                time: prettyTime,
-	                temp: type == 'english' ? entry.temp.english : entry.temp.metric
+	                temp: celsius ? entry.temp.metric : entry.temp.english
 	            };
 	        });
 	        temps = tempData.slice(0, 72);
-	        recordHigh = data.almanac.temp_high.record.C;
-	        recordLow = data.almanac.temp_low.record.C;
+
+	        recordHigh = celsius ? data.almanac.temp_high.record.C : data.almanac.temp_high.record.F;
+	        recordLow = celsius ? data.almanac.temp_low.record.C : data.almanac.temp_low.record.F;
 
 	        var xScale = d3.time.scale().domain([temps[0].time, temps.slice(-1)[0].time]).range([0, width]);
 
 	        var yScale = d3.scale.linear().domain([d3.min(temps, function (d) {
-	            return parseInt(d.temp) - 15;
+	            return parseInt(d.temp) - (celsius ? 15 : 30);
 	        }), d3.max(temps, function (d) {
-	            return parseInt(d.temp) + 15;
+	            return parseInt(d.temp) + (celsius ? 15 : 30);
 	        })]).range([height, 0]);
 
 	        // Line generator function
@@ -31201,7 +31228,7 @@
 
 	        svg.append('g').attr('class', 'dayLabels').attr('transform', 'translate(0,' + (height + 20) + ')').call(xAxisDays);
 
-	        svg.append('g').attr('class', 'axis').call(yAxis).append('text').attr('class', 'label').attr('text-anchor', 'end').attr('transform', 'rotate(-90)').attr('y', -30).text('Temperature (Celsius)');
+	        svg.append('g').attr('class', 'axis').call(yAxis).append('text').attr('class', 'label').attr('text-anchor', 'end').attr('transform', 'rotate(-90)').attr('y', -30).text('Temperature (' + (celsius ? 'Celsius' : 'Fahrenheit') + ')');
 
 	        // Append box showing temperature ranges
 	        svg.append('rect').style('fill', 'lightgrey').style('opacity', '0.3').attr('x', 0).attr('y', yScale(recordHigh)).attr('width', width).attr('height', Math.abs(yScale(recordHigh) - yScale(recordLow)));
