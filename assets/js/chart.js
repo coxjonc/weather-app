@@ -2,7 +2,7 @@ var d3 = require('d3')
 
 module.exports = {
     generateChart: function(data, type) {
-        $('#chart').empty();
+        $('#weatherChart').empty();
 
         // Set margins
         var margin = {top: 20, right: 20, bottom: 20, left: 40},
@@ -13,14 +13,15 @@ module.exports = {
         var svg = d3.select('div#weatherChart')
             .attr('class', 'svg-container')
           .append('svg')
-            .attr('viewBox', '0 0 ' + width + ' ' + height + margin.top + margin.bottom)
+            .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + 
+                ' ' + (height + margin.top + margin.bottom)) 
             .attr('class', 'svg-content-responsive')
           .append('g')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-        
+       
         // Get an array of max and min temperatures for each day in 
         // the 4-day forecast
-        var data = data.hourly_forecast.map(function(entry) {
+        var tempData = data.hourly_forecast.map(function(entry) {
             var format = d3.time.format('%Y-%m-%d-%H');
             var time = entry.FCTTIME;
 
@@ -34,39 +35,38 @@ module.exports = {
                 temp: (type == 'english') ? entry.temp.english : entry.temp.metric
             }
         }); 
+        temps = tempData.slice(0,72)
+        recordHigh = data.almanac.temp_high.record.C
+        recordLow = data.almanac.temp_low.record.C
 
-        var x = d3.time.scale()
-            .domain([data[0].time, data.slice(-1)[0].time])
+        var xScale = d3.time.scale()
+            .domain([temps[0].time, temps.slice(-1)[0].time])
             .range([0, width])
 
-        var y = d3.scale.linear()
+        var yScale = d3.scale.linear()
             .domain([
-              d3.min(data, function(d){return parseInt(d.temp)}),
-              d3.max(data, function(d){return parseInt(d.temp)})
+              d3.min(temps, function(d){return parseInt(d.temp) - 15}),
+              d3.max(temps, function(d){return parseInt(d.temp) + 15})
             ])
             .range([height, 0])
         
+        // Line generator function
         var lineGen = d3.svg.line()
-            .x(function(d) {return x(d.time)})
-            .y(function(d) {return y(d.temp)})
-
-        svg.append('path')
-           .attr('d', lineGen(data))
-           .attr('stroke', 'black')
-           .attr('stroke-width', 2)
-           .attr('fill', 'none')
+            .x(function(d) {return xScale(d.time)})
+            .y(function(d) {return yScale(d.temp)})
 
         // Create axis templates
         var xAxis = d3.svg.axis()
-            .scale(x)
+            .scale(xScale)
             .orient('bottom')
             .tickFormat(d3.time.format('%Hh %a'))
             .ticks(10)
 
         var yAxis = d3.svg.axis()
-            .scale(y)
+            .scale(yScale)
             .orient('left')
 
+        // Append axes
         svg.append('g')
             .attr('class', 'axis')
             .attr('transform', 'translate(0, ' + height + ')')
@@ -74,9 +74,9 @@ module.exports = {
           .append('text')
             .attr('class', 'label')
             .attr('text-anchor', 'end')
-            .attr('x', width - 20)
-            .attr('y', height - 20)
-            .text('Hour')
+            .attr('x', width)
+            .attr('y', 30)
+            .text('Hour');
 
         svg.append('g')
             .attr('class', 'axis')
@@ -85,7 +85,23 @@ module.exports = {
             .attr('class', 'label')
             .attr('text-anchor', 'end')
             .attr('transform', 'rotate(-90)')
-            .attr('y', -20)
-            .text('Temperature (C)')
+            .attr('y', -30)
+            .text('Temperature (Celsius)');
+
+        // Append box showing temperature ranges
+        svg.append('rect')
+            .style('fill', 'lightgrey')
+            .style('opacity', '0.3')
+            .attr('x', 0)
+            .attr('y', yScale(recordHigh))
+            .attr('width', width)
+            .attr('height', Math.abs(yScale(recordHigh) - yScale(recordLow)))
+
+        // Append line
+        svg.append('path')
+            .attr('d', lineGen(temps))
+            .attr('stroke', '#660033')
+            .attr('stroke-width', 2)
+            .attr('fill', 'none')
     }
 }

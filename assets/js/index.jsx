@@ -1,28 +1,28 @@
-var React = require("react")
-var ReactDOM = require("react-dom")
-var Select = require("react-select")
-var chart = require("./chart.js")
+var React = require('react')
+var ReactDOM = require('react-dom')
+var Select = require('react-select')
+var chart = require('./chart.js')
 
-require("react-select/dist/react-select.min.css")
+require('react-select/dist/react-select.min.css')
 
 var App = React.createClass({
     getInitialState: function() {
         return {
-            citySelectValue: "x",
+            citySelectValue: 'x',
             cityOptions: [],
-            zmw: "",
+            zmw: '',
             weatherData: [],
-            type: "metric"
+            type: 'metric'
         }
     },
 
     updateCities: function(input, callback) {
         $.ajax({
-            method: "GET",
-            url: "http://autocomplete.wunderground.com/aq",
+            method: 'GET',
+            url: 'http://autocomplete.wunderground.com/aq',
             data: {query: input},
-            dataType: "jsonp",
-            jsonp: "cb",
+            dataType: 'jsonp',
+            jsonp: 'cb',
             crossDomain: true,
             success: function(data){
                 var data = data.RESULTS.map(function(city){
@@ -37,9 +37,10 @@ var App = React.createClass({
     getWeather: function() {
         $.ajax({
             method: 'GET',
-            url: "http://api.wunderground.com/api/f8e80b5bdc3e3694/hourly/q/zmw:" + this.state.zmw + ".json",
-            dataType: "jsonp", 
-            jsonp: "callback",
+            url: 'http://api.wunderground.com/api/f8e80b5bdc3e3694/' + 
+            'hourly10day/almanac/q/zmw:' + this.state.zmw + '.json',
+            dataType: 'jsonp', 
+            jsonp: 'callback',
             crossDomain: true,
             success: function(data){
                 this.setState({weatherData: data})
@@ -58,15 +59,17 @@ var App = React.createClass({
             <div>
             <h1>WEATHER</h1>
             <h2>Enter any city in the world</h2>
+            <div id='select'>
             <Select.Async
                 value={this.state.citySelectValue}
                 onChange={this.updateSelected}
                 loadOptions={this.updateCities}    
                 minimumInput={2}
             />
+            </div>
             </div> 
         )
     }
 })
 
-ReactDOM.render(<App />, document.getElementById("app"))
+ReactDOM.render(<App />, document.getElementById('app'))
