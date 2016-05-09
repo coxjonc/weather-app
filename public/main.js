@@ -97,7 +97,8 @@
 	    },
 
 	    updateSelected: function (val) {
-	        this.setState({ citySelectValue: val, zmw: val.value });
+	        this.setState({ citySelectValue: val ? val : '',
+	            zmw: val ? val.value : '' });
 	        setTimeout(this.getWeather, 500);
 	    },
 
@@ -108,7 +109,7 @@
 	            React.createElement(
 	                'h1',
 	                null,
-	                'WEATHER'
+	                '72-Hour Forecast'
 	            ),
 	            React.createElement(
 	                'h2',
@@ -31150,7 +31151,7 @@
 	        $('#weatherChart').empty();
 
 	        // Set margins
-	        var margin = { top: 20, right: 20, bottom: 20, left: 40 },
+	        var margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	            width = 600 - margin.right - margin.left,
 	            height = 400 - margin.top - margin.bottom;
 
@@ -31189,19 +31190,32 @@
 	        });
 
 	        // Create axis templates
-	        var xAxis = d3.svg.axis().scale(xScale).orient('bottom').tickFormat(d3.time.format('%Hh %a')).ticks(10);
+	        var xAxisHours = d3.svg.axis().scale(xScale).orient('bottom').tickFormat(d3.time.format('%Hh')).ticks(10);
+
+	        var xAxisDays = d3.svg.axis().scale(xScale).orient('bottom').tickFormat(d3.time.format('%A')).ticks(3);
 
 	        var yAxis = d3.svg.axis().scale(yScale).orient('left');
 
 	        // Append axes
-	        svg.append('g').attr('class', 'axis').attr('transform', 'translate(0, ' + height + ')').call(xAxis).append('text').attr('class', 'label').attr('text-anchor', 'end').attr('x', width).attr('y', 30).text('Hour');
+	        svg.append('g').attr('class', 'axis').attr('transform', 'translate(0, ' + height + ')').call(xAxisHours);
+
+	        svg.append('g').attr('class', 'dayLabels').attr('transform', 'translate(0,' + (height + 20) + ')').call(xAxisDays);
 
 	        svg.append('g').attr('class', 'axis').call(yAxis).append('text').attr('class', 'label').attr('text-anchor', 'end').attr('transform', 'rotate(-90)').attr('y', -30).text('Temperature (Celsius)');
 
 	        // Append box showing temperature ranges
 	        svg.append('rect').style('fill', 'lightgrey').style('opacity', '0.3').attr('x', 0).attr('y', yScale(recordHigh)).attr('width', width).attr('height', Math.abs(yScale(recordHigh) - yScale(recordLow)));
 
-	        // Append line
+	        // Append line bounds and labels to box
+	        svg.append('line').attr('class', 'boundLine').style("stroke", "black").style("stroke-dasharray", "3.3").style("opacity", 0.5).attr('x1', 0).attr('x2', width).attr('y1', yScale(recordLow)).attr('y2', yScale(recordLow));
+
+	        svg.append('line').attr('class', 'boundLine').style("stroke", "black").style("stroke-dasharray", "3.3").style("opacity", 0.5).attr('x1', 0).attr('x2', width).attr('y1', yScale(recordHigh)).attr('y2', yScale(recordHigh));
+
+	        svg.append('text').style('stroke', 'black').attr('class', 'label').attr('dx', 3).attr('dy', yScale(recordLow) - 5).text('Record low');
+
+	        svg.append('text').style('stroke', 'black').attr('class', 'label').attr('dx', 3).attr('dy', yScale(recordHigh) - 5).text('Record high');
+
+	        // Append line graph of temperature
 	        svg.append('path').attr('d', lineGen(temps)).attr('stroke', '#660033').attr('stroke-width', 2).attr('fill', 'none');
 	    }
 	};

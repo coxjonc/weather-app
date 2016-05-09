@@ -50,14 +50,15 @@ var App = React.createClass({
     },
 
     updateSelected: function(val) {
-        this.setState({citySelectValue: val, zmw: val.value})
+        this.setState({citySelectValue: (val) ? val : '', 
+            zmw: (val) ? val.value : ''})
         setTimeout(this.getWeather, 500)
     },
 
     render: function() {
         return (
             <div>
-            <h1>WEATHER</h1>
+            <h1>72-Hour Forecast</h1>
             <h2>Enter any city in the world</h2>
             <div id='select'>
             <Select.Async
